@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Basic robot setup without fusion -->
+    <include file="$(find igv)/launch/igv_robot_base_andy.launch"/>
+
+    <!-- Sensor fusion only -->
+    <include file="$(find igv)/launch/sensor_fusion_andy2.launch">
+        <arg name="use_gps" value="true"/>
+    </include>
+
+    <!-- RViz for visualization -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find igv)/rviz/test_fusion_andy.rviz"/>
+
+    <!-- Diagnostic nodes to verify fusion -->
+    <node pkg="rqt_tf_tree" type="rqt_tf_tree" name="tf_tree"/>
+    <node pkg="rqt_topic" type="rqt_topic" name="topic_monitor"/>
+</launch> 

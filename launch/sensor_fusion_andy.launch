@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Arguments -->
+    <arg name="use_gps" default="false" doc="Enable GPS-based localization"/>
+    
+    <!-- Local EKF node - Always running for odometry -->
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_local" clear_params="true">
+        <rosparam command="load" file="$(find igv)/config/ekf_local_andy.yaml" />
+        
+        <!-- Remap topics to match your robot's setup -->
+        <remap from="odometry/filtered" to="odometry/filtered/local"/>
+    </node>
+
+    <!-- Optional GPS-based localization -->
+    <group if="$(arg use_gps)">
+        <!-- NavSat transform node -->
+        <node pkg="robot_localization" type="navsat_transform_node" name="navsat" clear_params="true">
+            <rosparam command="load" file="$(find igv)/config/navsat_andy.yaml" />
+            
+            <!-- Remap topics to match your robot's setup -->
+            <remap from="imu/data" to="imu"/>
+            <remap from="gps/fix" to="gps"/>
+            <remap from="odometry/filtered" to="odometry/filtered/global"/>
+        </node>
+
+        <!-- Global EKF node -->
+        <node pkg="robot_localization" type="ekf_localization_node" name="ekf_global" clear_params="true">
+            <rosparam command="load" file="$(find igv)/config/ekf_global_andy.yaml" />
+            
+            <!-- Remap topics to match your robot's setup -->
+            <remap from="odometry/filtered" to="odometry/filtered/global"/>
+        </node>
+    </group>
+
+    <!-- Optional: Add diagnostics -->
+    <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
+        <rosparam command="load" file="$(find igv)/config/diagnostics.yaml" />
+    </node>
+</launch> 
